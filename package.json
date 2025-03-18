@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An Astro integration for highlighting and commenting on web pages.",
   "main": "dist/index.js",
+  "type": "module",
   "author": {
     "name": "Amit Chanchal",
     "email": "derocon@gmail.com",
@@ -27,7 +28,9 @@
   },
   "homepage": "https://github.com/toxac/astro-annotate#readme",
   "dependencies": {
-    "astro": "^5.5.2"
+    "astro": "^5.5.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

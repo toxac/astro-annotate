@@ -1,6 +1,8 @@
 import type { AstroIntegration } from 'astro';
 
-export default function astroAnnotate(): AstroIntegration {
+export * from './api/annotate.js';
+
+export default function astroAnnotate(options: { enabled?: boolean } = { enabled: true }): AstroIntegration {
   return {
     name: 'astro-annotate',
     hooks: {

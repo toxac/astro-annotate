@@ -1,3 +1,4 @@
+export * from './api/annotate.js';
 export default function astroAnnotate() {
     return {
         name: 'astro-annotate',
