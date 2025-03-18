@@ -1,9 +1,35 @@
 {
   "name": "astro-annotate",
   "version": "1.0.0",
+  "description": "An Astro integration for highlighting and commenting on web pages.",
   "main": "index.js",
+  "author": {
+    "name": "Amit Chanchal",
+    "email": "derocon@gmail.com", 
+    "url": "https://github.com/toxac"
+  },
   "license": "MIT",
+  "keywords": [
+    "astro",
+    "integration",
+    "comment",
+    "annotate",
+    "highlight",
+    "feedback",
+    "collaboration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toxac/astro-annotate.git" 
+  },
+  "bugs": {
+    "url": "https://github.com/toxac/astro-annotate/issues" 
+  },
+  "homepage": "https://github.com/toxac/astro-annotate#readme", 
   "dependencies": {
     "sqlite3": "^5.1.7"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
