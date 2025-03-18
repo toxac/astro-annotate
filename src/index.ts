@@ -1,31 +1,64 @@
 import type { AstroIntegration } from 'astro';
+import { initDb } from './database/db.js';
+import { get as getAnnotations, post as postAnnotation } from './api/annotations.js';
+import { getUniqueSelector } from './utils/selector.js';
 
-export * from './api/annotate.js';
+export * from './api/annotations.js';
 
 export default function astroAnnotate(options: { enabled?: boolean } = { enabled: true }): AstroIntegration {
   return {
     name: 'astro-annotate',
     hooks: {
-      'astro:config:setup': ({ injectScript }) => {
-        // Inject the frontend script
-        injectScript('page', `
-          // Inject CSS dynamically
-          const style = document.createElement('style');
-          style.textContent = \`
-            .astro-annotate-highlight {
-              background-color: yellow;
-              cursor: pointer;
-            }
-            .astro-annotate-comment {
-              margin-top: 5px;
-              padding: 5px;
-              background-color: #f0f0f0;
-              border-left: 3px solid #ccc;
-            }
-          \`;
-          document.head.appendChild(style);
+      'astro:config:setup': ({ injectScript, injectRoute }) => {
+        if (!options.enabled) return;
 
-          // Highlight and comment logic
+        initDb();
+
+        injectRoute({
+          pattern: '/api/annotations',
+          entrypoint: 'astro-annotate/api/annotations',
+        });
+
+        injectScript('page', `
+          import { getUniqueSelector } from 'astro-annotate/utils/selector';
+
+          const userId = localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(7);
+          localStorage.setItem('userId', userId);
+
+          async function saveAnnotation(highlightId, text, comment, pageUrl, element) {
+            const selector = getUniqueSelector(element);
+            const annotation = {
+              id: 'annotation-' + Date.now(),
+              userId,
+              highlightId,
+              text,
+              comment,
+              pageUrl,
+              selector,
+              timestamp: new Date().toISOString(),
+            };
+
+            await fetch('/api/annotations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(annotation),
+            });
+          }
+
+          async function fetchAnnotations(pageUrl) {
+            const response = await fetch('/api/annotations?pageUrl=' + encodeURIComponent(pageUrl));
+            const annotations = await response.json();
+            annotations.forEach(annotation => {
+              const element = document.querySelector(annotation.selector);
+              if (element) {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'astro-annotate-comment';
+                commentElement.textContent = annotation.comment + ' (by ' + annotation.userId + ')';
+                element.appendChild(commentElement);
+              }
+            });
+          }
+
           document.addEventListener('mouseup', () => {
             const selection = window.getSelection();
             if (selection.toString().trim()) {
@@ -34,46 +67,22 @@ export default function astroAnnotate(options: { enabled?: boolean } = { enabled
               highlight.className = 'astro-annotate-highlight';
               highlight.textContent = selection.toString();
 
-              // Add a unique ID to the highlight
               const highlightId = 'highlight-' + Date.now();
               highlight.setAttribute('data-annotate-id', highlightId);
 
               range.deleteContents();
               range.insertNode(highlight);
 
-              // Prompt for a comment
               const comment = prompt('Add a comment:');
               if (comment) {
-                // Save the highlight and comment
-                saveAnnotation(highlightId, selection.toString(), comment, window.location.href);
+                saveAnnotation(highlightId, selection.toString(), comment, window.location.href, highlight);
               }
             }
           });
 
-          function saveAnnotation(highlightId, text, comment, pageUrl) {
-            fetch('/api/annotations', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ highlightId, text, comment, pageUrl })
-            });
-          }
-
-          // Fetch and render annotations for the current page
-          fetch('/api/annotations?pageUrl=' + encodeURIComponent(window.location.href))
-            .then(response => response.json())
-            .then(annotations => {
-              annotations.forEach(annotation => {
-                const element = document.querySelector(\`[data-annotate-id="\${annotation.highlightId}"]\`);
-                if (element) {
-                  const commentElement = document.createElement('div');
-                  commentElement.className = 'astro-annotate-comment';
-                  commentElement.textContent = annotation.comment;
-                  element.appendChild(commentElement);
-                }
-              });
-            });
+          fetchAnnotations(window.location.href);
         `);
-      }
-    }
+      },
+    },
   };
 }

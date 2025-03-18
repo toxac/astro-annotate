@@ -21,6 +21,7 @@ export async function initDb() {
       text TEXT,
       comment TEXT,
       pageUrl TEXT,
+      selector TEXT,
       timestamp TEXT
     )
   `);
