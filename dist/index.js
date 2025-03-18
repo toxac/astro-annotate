@@ -1,4 +1,5 @@
 import { initDb } from './database/db.js';
+import './api/annotations.js';
 export * from './api/annotations.js';
 export default function astroAnnotate(options = { enabled: true }) {
     return {
@@ -10,7 +11,7 @@ export default function astroAnnotate(options = { enabled: true }) {
                 initDb();
                 injectRoute({
                     pattern: '/api/annotations',
-                    entrypoint: 'astro-annotate/api/annotations',
+                    entrypoint: 'astro-annotate/src/api/annotations',
                 });
                 injectScript('page', `
           import { getUniqueSelector } from 'astro-annotate/utils/selector';
