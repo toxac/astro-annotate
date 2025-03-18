@@ -14,11 +14,11 @@ export function getUniqueSelector(element: HTMLElement): string {
         path.unshift(selector);
         break;
       } else {
-        let sibling = currentElement;
+        let sibling = currentElement as HTMLElement; // Type assertion
         let nth = 1;
   
         while (sibling.previousElementSibling) {
-          sibling = sibling.previousElementSibling;
+          sibling = sibling.previousElementSibling as HTMLElement; // Type assertion
           if (sibling.nodeName.toLowerCase() === selector) {
             nth++;
           }
