@@ -2,7 +2,7 @@
   "name": "astro-annotate",
   "version": "1.0.0",
   "description": "An Astro integration for highlighting and commenting on web pages.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": {
     "name": "Amit Chanchal",
     "email": "derocon@gmail.com",
