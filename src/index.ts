@@ -1,9 +1,7 @@
 import type { AstroIntegration } from 'astro';
 import { initDb } from './database/db.js';
-import { get as getAnnotations, post as postAnnotation } from './api/annotations.js';
-import { getUniqueSelector } from './utils/selector.js';
-import './api/annotations.js';
-export * from './api/annotations.js';
+import './api/annotations';
+
 
 export default function astroAnnotate(options: { enabled?: boolean } = { enabled: true }): AstroIntegration {
   return {
@@ -16,7 +14,7 @@ export default function astroAnnotate(options: { enabled?: boolean } = { enabled
 
         injectRoute({
           pattern: '/api/annotations',
-          entrypoint: 'astro-annotate/src/api/annotations',
+          entrypoint: 'astro-annotate/dist/api/annotations',
         });
 
         injectScript('page', `
