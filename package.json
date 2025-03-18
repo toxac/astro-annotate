@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/toxac/astro-annotate#readme",
   "dependencies": {
-    "sqlite3": "^5.1.7"
+    "astro": "^5.5.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -35,9 +35,7 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@astrojs/telemetry": "^3.2.0",
     "@types/node": "^22.13.10",
-    "astro": "^5.5.2",
     "typescript": "^5.8.2"
   }
 }

@@ -1,51 +1,77 @@
-// src/index.ts
-import { fileURLToPath } from 'url';
-import path from 'path';
-import type { AstroIntegration, AstroConfig, AstroIntegrationLogger, InjectedScriptStage } from 'astro';
+import type { AstroIntegration } from 'astro';
 
-export default function commentIntegration(options: { enabled?: boolean } = { enabled: true }): AstroIntegration {
+export default function astroAnnotate(): AstroIntegration {
   return {
     name: 'astro-annotate',
     hooks: {
-      'astro:config:setup': ({ config, command, isRestart, updateConfig, injectScript, logger }: {
-        config: AstroConfig;
-        command: 'build' | 'dev' | 'preview' | 'sync';
-        isRestart: boolean;
-        updateConfig: (newConfig: Partial<AstroConfig>) => void; // Use Partial<AstroConfig>
-        injectScript: (stage: InjectedScriptStage, content: string) => void; // Correct injectScript type
-        logger: AstroIntegrationLogger;
-      }) => {
-        if (!options.enabled) {
-          return; // Disable the integration if 'enabled' is false
-        }
+      'astro:config:setup': ({ injectScript }) => {
+        // Inject the frontend script
+        injectScript('page', `
+          // Inject CSS dynamically
+          const style = document.createElement('style');
+          style.textContent = \`
+            .astro-annotate-highlight {
+              background-color: yellow;
+              cursor: pointer;
+            }
+            .astro-annotate-comment {
+              margin-top: 5px;
+              padding: 5px;
+              background-color: #f0f0f0;
+              border-left: 3px solid #ccc;
+            }
+          \`;
+          document.head.appendChild(style);
 
-        const clientPath = fileURLToPath(new URL('./client.ts', import.meta.url));
-        const apiPath = fileURLToPath(new URL('./api/comments.ts', import.meta.url));
-        const dbPath = fileURLToPath(new URL('./db.ts', import.meta.url));
+          // Highlight and comment logic
+          document.addEventListener('mouseup', () => {
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+              const range = selection.getRangeAt(0);
+              const highlight = document.createElement('span');
+              highlight.className = 'astro-annotate-highlight';
+              highlight.textContent = selection.toString();
 
-        // Inject client-side script
-        injectScript('page', `import "${clientPath}";`); // Correct injectScript usage
+              // Add a unique ID to the highlight
+              const highlightId = 'highlight-' + Date.now();
+              highlight.setAttribute('data-annotate-id', highlightId);
 
-        // Copy API route and db.js to the project's src/pages/api directory
-        const apiDir = path.join(config.srcDir.pathname, 'pages/api');
-        const dbDir = path.join(config.srcDir.pathname, 'lib');
+              range.deleteContents();
+              range.insertNode(highlight);
 
-        config.vite.plugins?.push({
-          name: 'copy-api-and-db',
-          generateBundle() {
-            this.emitFile({
-              type: 'asset',
-              fileName: 'pages/api/comments.js',
-              source: `import '../../../${path.relative(apiDir, apiPath)}';`,
+              // Prompt for a comment
+              const comment = prompt('Add a comment:');
+              if (comment) {
+                // Save the highlight and comment
+                saveAnnotation(highlightId, selection.toString(), comment, window.location.href);
+              }
+            }
+          });
+
+          function saveAnnotation(highlightId, text, comment, pageUrl) {
+            fetch('/api/annotations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ highlightId, text, comment, pageUrl })
             });
-            this.emitFile({
-              type: 'asset',
-              fileName: 'lib/db.js',
-              source: `import '../../${path.relative(dbDir, dbPath)}';`,
+          }
+
+          // Fetch and render annotations for the current page
+          fetch('/api/annotations?pageUrl=' + encodeURIComponent(window.location.href))
+            .then(response => response.json())
+            .then(annotations => {
+              annotations.forEach(annotation => {
+                const element = document.querySelector(\`[data-annotate-id="\${annotation.highlightId}"]\`);
+                if (element) {
+                  const commentElement = document.createElement('div');
+                  commentElement.className = 'astro-annotate-comment';
+                  commentElement.textContent = annotation.comment;
+                  element.appendChild(commentElement);
+                }
+              });
             });
-          },
-        });
-      },
-    },
+        `);
+      }
+    }
   };
 }
