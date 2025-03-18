@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { openDb } from '../database/db.js';
 
-export const post: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request }) => {
   const db = await openDb();
   const annotation = await request.json();
 
@@ -25,7 +25,7 @@ export const post: APIRoute = async ({ request }) => {
   });
 };
 
-export const get: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url }) => {
   const db = await openDb();
   const pageUrl = url.searchParams.get('pageUrl');
 

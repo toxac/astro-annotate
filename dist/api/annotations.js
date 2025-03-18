@@ -1,5 +1,5 @@
 import { openDb } from '../database/db.js';
-export const post = async ({ request }) => {
+export const POST = async ({ request }) => {
     const db = await openDb();
     const annotation = await request.json();
     await db.run('INSERT INTO annotations (id, userId, highlightId, text, comment, pageUrl, selector, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
@@ -17,7 +17,7 @@ export const post = async ({ request }) => {
         headers: { 'Content-Type': 'application/json' },
     });
 };
-export const get = async ({ url }) => {
+export const GET = async ({ url }) => {
     const db = await openDb();
     const pageUrl = url.searchParams.get('pageUrl');
     if (!pageUrl) {

@@ -1,6 +1,6 @@
 import type { AstroIntegration } from 'astro';
 import { initDb } from './database/db.js';
-import './api/annotations';
+import './api/annotations.js';
 
 
 export default function astroAnnotate(options: { enabled?: boolean } = { enabled: true }): AstroIntegration {
@@ -14,11 +14,48 @@ export default function astroAnnotate(options: { enabled?: boolean } = { enabled
 
         injectRoute({
           pattern: '/api/annotations',
-          entrypoint: 'astro-annotate/dist/api/annotations',
+          entrypoint: 'astro-annotate/dist/api/annotations.js',
         });
 
         injectScript('page', `
-          import { getUniqueSelector } from 'astro-annotate/utils/selector';
+          // Inline the getUniqueSelector function
+          function getUniqueSelector(element) {
+            if (element.id) {
+              return '#' + element.id;
+            }
+
+            const path = [];
+            let currentElement = element;
+
+            while (currentElement && currentElement.nodeName.toLowerCase() !== 'body') {
+              let selector = currentElement.nodeName.toLowerCase();
+
+              if (currentElement.id) {
+                selector += '#' + currentElement.id;
+                path.unshift(selector);
+                break;
+              } else {
+                let sibling = currentElement;
+                let nth = 1;
+
+                while (sibling.previousElementSibling) {
+                  sibling = sibling.previousElementSibling;
+                  if (sibling.nodeName.toLowerCase() === selector) {
+                    nth++;
+                  }
+                }
+
+                if (nth !== 1) {
+                  selector += ':nth-of-type(' + nth + ')';
+                }
+              }
+
+              path.unshift(selector);
+              currentElement = currentElement.parentElement;
+            }
+
+            return path.join(' > ');
+          }
 
           const userId = localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(7);
           localStorage.setItem('userId', userId);
