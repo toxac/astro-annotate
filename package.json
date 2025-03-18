@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": {
     "name": "Amit Chanchal",
-    "email": "derocon@gmail.com", 
+    "email": "derocon@gmail.com",
     "url": "https://github.com/toxac"
   },
   "license": "MIT",
@@ -20,16 +20,20 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/toxac/astro-annotate.git" 
+    "url": "https://github.com/toxac/astro-annotate.git"
   },
   "bugs": {
-    "url": "https://github.com/toxac/astro-annotate/issues" 
+    "url": "https://github.com/toxac/astro-annotate/issues"
   },
-  "homepage": "https://github.com/toxac/astro-annotate#readme", 
+  "homepage": "https://github.com/toxac/astro-annotate#readme",
   "dependencies": {
     "sqlite3": "^5.1.7"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
   }
 }
