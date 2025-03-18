@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["."],
+  "include": ["src"], // Update include to "src"
   "exclude": ["node_modules", "dist"]
 }
