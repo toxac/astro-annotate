@@ -9,7 +9,7 @@ export const POST = async ({ request }) => {
         annotation.text,
         annotation.comment,
         annotation.pageUrl,
-        annotation.selector,
+        annotation.element.getAttribute('data-annotate-selector'), // Save selector
         annotation.timestamp,
     ]);
     await db.close();

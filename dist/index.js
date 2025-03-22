@@ -77,17 +77,43 @@ export default function astroAnnotate(options = { enabled: true }) {
 
           async function fetchAnnotations(pageUrl) {
             const response = await fetch('/api/annotations?pageUrl=' + encodeURIComponent(pageUrl));
+            if (!response.ok) {
+              console.error('Failed to fetch annotations');
+              return;
+            }
+            
             const annotations = await response.json();
+            console.log('Fetched annotations:', annotations); // Debugging
             annotations.forEach(annotation => {
-              const element = document.querySelector(annotation.selector);
-              if (element) {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'astro-annotate-comment';
-                commentElement.textContent = annotation.comment + ' (by ' + annotation.userId + ')';
-                element.appendChild(commentElement);
+                const element = document.querySelector(annotation.selector);
+                if (element) {
+                  const commentElement = document.createElement('div');
+                  commentElement.className = 'astro-annotate-comment';
+                  commentElement.textContent = annotation.comment + ' (by ' + annotation.userId + ')';
+                  element.appendChild(commentElement);
+                } else {
+                  console.error('Element not found for selector:', annotation.selector); // Debugging
+                }
+              });
+            }
+            
+            // Inject CSS dynamically
+            const style = document.createElement('style');
+            style.textContent = \`
+              .astro-annotate-highlight {
+                background-color: yellow;
+                cursor: pointer;
               }
-            });
-          }
+              .astro-annotate-comment {
+                margin-top: 5px;
+                padding: 5px;
+                background-color: #f0f0f0;
+                border-left: 3px solid #ccc;
+                font-size: 14px;
+                color: #333;
+              }
+            \`;
+            document.head.appendChild(style);
 
           document.addEventListener('mouseup', () => {
             const selection = window.getSelection();
@@ -98,7 +124,8 @@ export default function astroAnnotate(options = { enabled: true }) {
               highlight.textContent = selection.toString();
 
               const highlightId = 'highlight-' + Date.now();
-              highlight.setAttribute('data-annotate-id', highlightId);
+              highlight.setAttribute('data-annotate-id', highlightId); // Add data attribute
+              highlight.setAttribute('data-annotate-selector', getUniqueSelector(highlight)); // Save selector
 
               range.deleteContents();
               range.insertNode(highlight);

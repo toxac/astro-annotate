@@ -2,8 +2,14 @@
   "name": "astro-annotate",
   "version": "1.0.0",
   "description": "An Astro integration for highlighting and commenting on web pages.",
-  "main": "dist/index.js",
   "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "author": {
     "name": "Amit Chanchal",
     "email": "derocon@gmail.com",
@@ -17,28 +23,52 @@
     "annotate",
     "highlight",
     "feedback",
-    "collaboration"
+    "collaboration",
+    "astro-integration",
+    "annotations",
+    "review"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/toxac/astro-annotate.git"
+  },
+  "peerDependencies": {
+    "astro": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "bugs": {
     "url": "https://github.com/toxac/astro-annotate/issues"
   },
   "homepage": "https://github.com/toxac/astro-annotate#readme",
   "dependencies": {
-    "astro": "^5.5.2",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "watch": "tsc -w"
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
-    "typescript": "^5.8.2"
+    "@types/connect": "^3.4.38",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "astro": "^4.0.3",
+    "eslint": "^8.55.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.2"
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint src"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "dts": true
   }
 }
